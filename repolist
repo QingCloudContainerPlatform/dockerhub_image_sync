@@ -1,0 +1,6 @@
+fluent/fluent-bit
+istio/istio-ca
+istio/pilot
+istio/proxy_debug
+istio/mixer
+istio/statsd-exporter
