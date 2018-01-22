@@ -13,11 +13,13 @@ jobs:
             touch imagelist
             cat repolist | while read repo
             do \
-            echo "inspecting repo: $repo"
-            wget -q https://registry.hub.docker.com/v1/repositories/$repo/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'| while read version
+            project=$(echo $repo|awk '{ print $1}')
+            alternativens=$(echo $repo| awk '{ print $2}')
+            echo "inspecting repo: $project"
+            wget -q https://registry.hub.docker.com/v1/repositories/$project/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'| while read version
             do \
-              echo "$repo" "$version" >> imagelist
-              echo "got image $repo, version tag $version"
+              echo "$project" "$version" "$alternativens">> imagelist
+              echo "got image $project, version tag $version"
             done
             done
             shipctl copy_file_to_state "imagelist"
@@ -30,17 +32,16 @@ jobs:
       - TASK:
         - script: |
             imageliststate=$(shipctl get_resource_state get_latest_docker_image_list)
-            shipctl copy_file_from_prev_state imagelist oldimagelist
             cp $imageliststate/imagelist newimagelist
-            comm -3 -1 <( sort oldimagelist) <(sort newimagelist) > updatelist
-            cat updatelist | while read item 
+            cat newimagelist | while read item 
             do \
             repo=$(echo $item|awk '{ print $1}')
             tag=$(echo $item| awk '{ print $2}')
-            echo "pushed $repo:$tag to dockerhub.qingcloud.com/$repo:$tag"
-            docker pull $repo:$tag
-            docker tag $repo:$tag dockerhub.qingcloud.com/$repo:$tag
-            shipctl retry docker push dockerhub.qingcloud.com/$repo:$tag
+            alternativens=$(echo $item| awk '{ print $3}')
+            namespace=${repo%/*}
+            project=${repo#*/}
+            finalrepo=${alternativens:-$namespace}/$project:$tag
+            (docker pull $repo:$tag && docker tag $repo:$tag dockerhub.qingcloud.com/$finalrepo && shipctl retry docker push dockerhub.qingcloud.com/$finalrepo && echo "pushed $repo:$tag to dockerhub.qingcloud.com/$finalrepo")||true
             done
             mv newimagelist imagelist
             shipctl copy_file_to_state imagelist 
