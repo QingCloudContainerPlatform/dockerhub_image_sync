@@ -10,3 +10,4 @@ istio/grafana
 openzipkin/zipkin
 openzipkin/zipkin-dependencies
 grafana/grafana
+prom/prometheus prometheus
