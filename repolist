@@ -1,6 +1,12 @@
 fluent/fluent-bit
+fluent/fluent-bit-kubernetes-daemonset
+istio/init
 istio/istio-ca
 istio/pilot
 istio/proxy_debug
 istio/mixer
 istio/statsd-exporter
+istio/grafana
+openzipkin/zipkin
+openzipkin/zipkin-dependencies
+grafana/grafana
