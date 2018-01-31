@@ -11,3 +11,4 @@ openzipkin/zipkin
 openzipkin/zipkin-dependencies
 grafana/grafana
 prom/prometheus prometheus
+nvidia/k8s-device-plugin
