@@ -16,7 +16,7 @@ jobs:
             project=$(echo $repo|awk '{ print $1}')
             alternativens=$(echo $repo| awk '{ print $2}')
             echo "inspecting repo: $project"
-            wget -q https://registry.hub.docker.com/v1/repositories/$project/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'| while read version
+            wget -q https://registry.hub.docker.com/v1/repositories/$project/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'|sort -r | head -n 3| while read version
             do \
               echo "$project" "$version" "$alternativens">> imagelist
               echo "got image $project, version tag $version"
